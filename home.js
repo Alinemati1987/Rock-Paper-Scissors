@@ -1,94 +1,126 @@
-const { input } = require("./input.js");
+// const { input } = require("./input.js");
+const fs = require("fs");
 
-const test = `
-A Y
-B X
-C Z
-`;
+// Main //
 
-const scores = {
-  A: 1, //Rock
-  B: 2, //Paper
-  C: 3, //Scissors
+function main() {
+  const allData = getData();
+  const conditions = getConditions();
+  partOne(allData, conditions);
+  partTwo(allData, conditions);
+}
 
-  X: 1, // need to lose //Rock
-  Y: 2, // need to draw //Paper
-  Z: 3, // need to win //Scissors
-  win: 6,
-  draw: 3,
-};
+// Functions //
 
-const winConditions = {
-  // if it is Z
-  A: "Y",
-  B: "Z",
-  C: "X",
-};
+function partOne(allData, conditions) {
+  let you = 0;
+  let opponent = 0;
 
-const loseConditions = {
-  // if it is X
-  A: "Z",
-  B: "X",
-  C: "Y",
-};
-
-let you = 0;
-let opponent = 0;
-
-const lines = input.trim().split("\n");
-
-// partOne();
-partTwo();
-
-function partOne() {
-  lines.forEach((line) => {
+  allData.forEach((line) => {
     const choice = line.trim().split(" ");
-    let opp = scores[choice[0]];
-    let y = scores[choice[1]];
+    let opp = conditions.scores[choice[0]];
+    let y = conditions.scores[choice[1]];
 
     if (opp - y == 1 || opp - y == -2) {
       // opp wins
-      opponent += opp + scores.win;
+      opponent += opp + conditions.scores.win;
       you += y;
     } else if (opp - y == -1 || opp - y == 2) {
       // you win
       opponent += opp;
-      you += y + scores.win;
+      you += y + conditions.scores.win;
     } else {
       //draw
-      opponent += opp + scores.draw;
-      you += y + scores.draw;
+      opponent += opp + conditions.scores.draw;
+      you += y + conditions.scores.draw;
     }
   });
 
-  console.log("ِYour score is: " + you);
-  console.log("Opponent score is: " + opponent);
+  logResult("part ONE", you, opponent);
 }
 
-function partTwo() {
-  lines.forEach((line) => {
+function partTwo(allData, conditions) {
+  let you = 0;
+  let opponent = 0;
+
+  allData.forEach((line) => {
     const choice = line.trim().split(" ");
 
     let oppChoice = choice[0];
     let condition = choice[1];
 
-    let opp = scores[oppChoice];
+    let opp = conditions.scores[oppChoice];
 
     if (condition == "Z") {
-      let yChoice = winConditions[oppChoice];
-      let y = scores[yChoice];
+      let yChoice = conditions.winConditions[oppChoice];
+      let y = conditions.scores[yChoice];
       opponent += opp;
-      you += y + scores.win;
+      you += y + conditions.scores.win;
     } else if (condition == "X") {
-      let yChoice = loseConditions[oppChoice];
-      let y = scores[yChoice];
-      opponent += opp + scores.win;
+      let yChoice = conditions.loseConditions[oppChoice];
+      let y = conditions.scores[yChoice];
+      opponent += opp + conditions.scores.win;
       you += y;
     } else {
-      opponent += opp + scores.draw;
-      you += opp + scores.draw;
+      opponent += opp + conditions.scores.draw;
+      you += opp + conditions.scores.draw;
     }
   });
-  console.log("ِYour score is: " + you);
-  console.log("Opponent score is: " + opponent);
+
+  logResult("part TWO", you, opponent);
 }
+
+function logResult(part, you, opp) {
+  console.log(
+    "The resalt for " +
+      part +
+      " is: \n Your score: " +
+      you +
+      "\n The opponent's score: " +
+      opp
+  );
+}
+
+function getConditions() {
+  const scores = {
+    A: 1, //Rock
+    B: 2, //Paper
+    C: 3, //Scissors
+
+    X: 1, // need to lose //Rock
+    Y: 2, // need to draw //Paper
+    Z: 3, // need to win //Scissors
+    win: 6,
+    draw: 3,
+  };
+
+  const winConditions = {
+    // if it is Z
+    A: "Y",
+    B: "Z",
+    C: "X",
+  };
+
+  const loseConditions = {
+    // if it is X
+    A: "Z",
+    B: "X",
+    C: "Y",
+  };
+
+  const allConditions = {
+    scores: scores,
+    winConditions: winConditions,
+    loseConditions: loseConditions,
+  };
+  return allConditions;
+}
+
+function getData() {
+  const lines = fs.readFileSync("./input.txt").toString();
+  var seperateLines = lines.trim().split("\n");
+  return seperateLines;
+}
+
+// Run the script //
+main();
